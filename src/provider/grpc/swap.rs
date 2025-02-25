@@ -72,7 +72,7 @@ impl GrpcClient {
             .into_inner()
             .block_hash;
 
-        let tx_message = create_transaction_message(instructions, &block_hash)?;
+        let tx_message: api::TransactionMessage = create_transaction_message(instructions, &block_hash)?;
 
         self.sign_and_submit(vec![tx_message], submit_opts, use_bundle)
             .await

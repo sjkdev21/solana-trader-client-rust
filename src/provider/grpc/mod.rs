@@ -71,8 +71,8 @@ impl GrpcClient {
         Ok(self.keypair.as_ref().unwrap())
     }
 
-    pub async fn new(endpoint: Option<String>) -> Result<Self> {
-        let base = BaseConfig::try_from_env()?;
+    pub async fn new(endpoint: Option<String>, config: Option<BaseConfig>) -> Result<Self> {
+        let base = config.unwrap_or(BaseConfig::try_from_env()?);
         let (default_base_url, secure) = get_base_url_from_env();
         let final_base_url = endpoint.unwrap_or(default_base_url);
         let endpoint = grpc_endpoint(&final_base_url, secure);
