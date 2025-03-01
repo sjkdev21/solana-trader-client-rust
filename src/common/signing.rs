@@ -24,6 +24,7 @@ pub struct SubmitParams {
     pub submit_strategy: api::SubmitStrategy,
     pub allow_back_run: Option<bool>,
     pub revenue_address: Option<String>,
+    pub allow_revert: Option<bool>,
 }
 
 impl Default for SubmitParams {
@@ -31,11 +32,12 @@ impl Default for SubmitParams {
         Self {
             skip_pre_flight: true,
             front_running_protection: false,
-            use_staked_rpcs: true,
+            use_staked_rpcs: false,
             fast_best_effort: false,
             submit_strategy: api::SubmitStrategy::PSubmitAll,
             allow_back_run: None,
             revenue_address: None,
+            allow_revert: None,
         }
     }
 }
