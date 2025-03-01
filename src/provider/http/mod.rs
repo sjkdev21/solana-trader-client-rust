@@ -20,7 +20,7 @@ use crate::{
     },
     provider::utils::convert_string_enums,
 };
-
+use solana_trader_proto::api;
 use super::utils::IntoTransactionMessage;
 
 pub struct HTTPClient {
@@ -175,6 +175,34 @@ impl HTTPClient {
             .collect();
 
         Ok(signatures)
+    }
+
+    pub async fn submit_transaction(
+        &self,
+        tx: api::TransactionMessage,
+        submit_opts: SubmitParams,
+    ) -> Result<Vec<String>> {
+        let request_json = json!({
+            "transaction": { "content": tx.content, "isCleanup": tx.is_cleanup },
+            "skipPreFlight": submit_opts.skip_pre_flight,
+            "frontRunningProtection": submit_opts.front_running_protection,
+            "useStakedRPCs": submit_opts.use_staked_rpcs,
+            "fastBestEffort": submit_opts.fast_best_effort
+        });
+
+        let response = self
+            .client
+            .post(format!("{}/api/v2/submit", self.base_url))
+            .json(&request_json)
+            .send()
+            .await?;
+
+        let result: serde_json::Value = self.handle_response(response).await?;
+        return Ok(vec![result
+            .get("signature")
+            .and_then(|s| s.as_str())
+            .map(String::from)
+            .ok_or_else(|| anyhow!("Missing signature in response"))?]);
     }
 
     pub async fn sign_and_submit_snipe<T: IntoTransactionMessage + Clone>(

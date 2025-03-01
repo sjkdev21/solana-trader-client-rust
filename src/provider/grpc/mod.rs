@@ -182,6 +182,39 @@ impl GrpcClient {
         Ok(signatures)
     }
 
+
+    pub async fn submit_transaction(
+        &mut self,
+        tx: api::TransactionMessage,
+        submit_opts: SubmitParams,
+    ) -> Result<String> {
+
+        let req = PostSubmitRequest {
+            transaction: Some(TransactionMessage {
+                content: tx.content,
+                is_cleanup: tx.is_cleanup,
+            }),
+            skip_pre_flight: submit_opts.skip_pre_flight,
+            front_running_protection: Some(submit_opts.front_running_protection),
+            use_staked_rp_cs: Some(submit_opts.use_staked_rpcs),
+            fast_best_effort: Some(submit_opts.fast_best_effort),
+            tip: None,
+            allow_back_run: submit_opts.allow_back_run,
+            revenue_address: submit_opts.revenue_address,
+            allow_revert: Some(false),
+            sniping: Some(false)
+        };
+
+        let signature = self
+            .client
+            .post_submit_v2(req)
+            .await?
+            .into_inner()
+            .signature;
+
+        return Ok(signature);
+    }
+
     pub async fn sign_and_submit_snipe<T: IntoTransactionMessage + Clone>(
         &mut self,
         txs: Vec<T>,
