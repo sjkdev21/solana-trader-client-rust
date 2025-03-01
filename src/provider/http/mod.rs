@@ -19,7 +19,6 @@ use crate::{
     },
     provider::utils::convert_string_enums,
 };
-use solana_trader_proto::api;
 use super::utils::IntoTransactionMessage;
 
 pub struct HTTPClient {
